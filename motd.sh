@@ -24,18 +24,18 @@ function center (){
     str=" $str"
     let spacesLeft=spacesLeft-1
   done
-  
+
   while [ $spacesRight -gt 0 ]; do
     str="$str "
     let spacesRight=spacesRight-1
   done
-  
+
   echo "$str"
 }
 
 function sec2time (){
   local input=$1
-  
+
   if [ $input -lt 60 ]; then
     echo "$input seconds"
   else
@@ -44,30 +44,30 @@ function sec2time (){
     ((hours=input/3600))
     ((input=input%3600))
     ((mins=input/60))
-    
+
     local daysPlural="s"
     local hoursPlural="s"
     local minsPlural="s"
-    
+
     if [ $days -eq 1 ]; then
       daysPlural=""
     fi
-    
+
     if [ $hours -eq 1 ]; then
       hoursPlural=""
     fi
-    
+
     if [ $mins -eq 1 ]; then
       minsPlural=""
     fi
-    
+
     echo "$days day$daysPlural, $hours hour$hoursPlural, $mins minute$minsPlural"
   fi
 }
 
 borderColor=35
 headerLeafColor=32
-headerRaspberryColor=31
+headerRaspColor=31
 greetingsColor=36
 statsLabelColor=33
 
@@ -81,14 +81,14 @@ borderEmptyLine="$borderBar                                                     
 header="$borderTopLine\n$borderEmptyLine\n"
 header="$header$borderBar$(color $headerLeafColor "          .~~.   .~~.                                                         ")$borderBar\n"
 header="$header$borderBar$(color $headerLeafColor "         '. \ ' ' / .'                                                        ")$borderBar\n"
-header="$header$borderBar$(color $headerRaspberryColor "          .~ .~~~..~.                      _                          _       ")$borderBar\n"
-header="$header$borderBar$(color $headerRaspberryColor "         : .~.'~'.~. :     ___ ___ ___ ___| |_ ___ ___ ___ _ _    ___|_|      ")$borderBar\n"
-header="$header$borderBar$(color $headerRaspberryColor "        ~ (   ) (   ) ~   |  _| .'|_ -| . | . | -_|  _|  _| | |  | . | |      ")$borderBar\n"
-header="$header$borderBar$(color $headerRaspberryColor "       ( : '~'.~.'~' : )  |_| |__,|___|  _|___|___|_| |_| |_  |  |  _|_|      ")$borderBar\n"
-header="$header$borderBar$(color $headerRaspberryColor "        ~ .~ (   ) ~. ~               |_|                 |___|  |_|          ")$borderBar\n"
-header="$header$borderBar$(color $headerRaspberryColor "         (  : '~' :  )                                                        ")$borderBar\n"
-header="$header$borderBar$(color $headerRaspberryColor "          '~ .~~~. ~'                                                         ")$borderBar\n"
-header="$header$borderBar$(color $headerRaspberryColor "              '~'                                                             ")$borderBar"
+header="$header$borderBar$(color $headerRaspColor "          .~ .~~~..~.                      _                          _       ")$borderBar\n"
+header="$header$borderBar$(color $headerRaspColor "         : .~.'~'.~. :     ___ ___ ___ ___| |_ ___ ___ ___ _ _    ___|_|      ")$borderBar\n"
+header="$header$borderBar$(color $headerRaspColor "        ~ (   ) (   ) ~   |  _| .'|_ -| . | . | -_|  _|  _| | |  | . | |      ")$borderBar\n"
+header="$header$borderBar$(color $headerRaspColor "       ( : '~'.~.'~' : )  |_| |__,|___|  _|___|___|_| |_| |_  |  |  _|_|      ")$borderBar\n"
+header="$header$borderBar$(color $headerRaspColor "        ~ .~ (   ) ~. ~               |_|                 |___|  |_|          ")$borderBar\n"
+header="$header$borderBar$(color $headerRaspColor "         (  : '~' :  )                                                        ")$borderBar\n"
+header="$header$borderBar$(color $headerRaspColor "          '~ .~~~. ~'                                                         ")$borderBar\n"
+header="$header$borderBar$(color $headerRaspColor "              '~'                                                             ")$borderBar"
 
 me=$(whoami)
 
@@ -97,7 +97,8 @@ greetings="$borderBar$(color $greetingsColor "$(center "Welcome back, $me!")")$b
 greetings="$greetings$borderBar$(color $greetingsColor "$(center "$(date +"%A, %d %B %Y, %T")")")$borderBar"
 
 # System information
-read loginFrom loginIP loginDate <<< $(last $me --time-format iso -2 | awk 'NR==2 { print $2,$3,$4 }')
+read loginFrom loginIP loginMonth loginDay loginTime loginYear <<< $(last $me -Fi -2 | awk 'NR==2 { print $2,$3,$5,$6,$7,$8 }')
+loginDate=$( date -d "${loginDay}-${loginMonth}-${loginYear} ${loginTime}" +'%FT %T' ) # format date to ISO
 
 # TTY login
 if [[ $loginDate == - ]]; then
@@ -106,7 +107,7 @@ if [[ $loginDate == - ]]; then
 fi
 
 if [[ $loginDate == *T* ]]; then
-  login="$(date -d $loginDate +"%A, %d %B %Y, %T") ($loginIP)"
+   login="$(date -d "$loginDate" +'%A, %d %B %Y, %T') ($loginIP)"
 else
   # Not enough logins
   login="None"
@@ -133,4 +134,4 @@ label5="$borderBar  $(color $statsLabelColor "Temperature...:") $label5$borderBa
 stats="$label1\n$label2\n$label3\n$label4\n$label5"
 
 # Print motd
-echo -e "$header\n$borderEmptyLine\n$greetings\n$borderEmptyLine\n$stats\n$borderEmptyLine\n$borderBottomLine"       
+echo -e "$header\n$borderEmptyLine\n$greetings\n$borderEmptyLine\n$stats\n$borderEmptyLine\n$borderBottomLine"
